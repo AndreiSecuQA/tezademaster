@@ -9,7 +9,7 @@ import { PlanReview } from './components/PlanReview.jsx'
 import { Generation } from './components/Generation.jsx'
 import { BibliographyReview } from './components/BibliographyReview.jsx'
 import { Download } from './components/Download.jsx'
-import { FileText } from 'lucide-react'
+import { Logo } from './components/Logo.jsx'
 
 const COMPONENTS = {
   welcome: Welcome,
@@ -26,40 +26,48 @@ const COMPONENTS = {
 export default function App() {
   const step = useStore((s) => s.step)
   const Component = COMPONENTS[step] || Welcome
-  const showStepper = step !== 'welcome'
+  const isWelcome = step === 'welcome'
 
   return (
-    <div className="min-h-full">
-      <header className="border-b border-ink-200 bg-white">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-ink-900 text-white flex items-center justify-center">
-              <FileText size={16} />
-            </div>
-            <div>
-              <div className="font-semibold text-ink-900 leading-tight">Generator Teza de Master</div>
-              <div className="text-xs text-ink-500 leading-tight">Conform ghidului ASEM GD.0.ESTM</div>
-            </div>
-          </div>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-ink-500 hover:text-ink-900"
+    <div className="min-h-full bg-app">
+      <header className="sticky top-0 z-20 border-b border-ink-200/80 bg-white/85 backdrop-blur-md">
+        <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <button
+            onClick={() => useStore.getState().setStep('welcome')}
+            className="flex items-center gap-2.5 group"
           >
-            v0.1
-          </a>
+            <Logo size={32} className="rounded-lg shadow-soft group-hover:shadow-pop transition-shadow" />
+            <div className="text-left">
+              <div className="font-semibold text-ink-900 leading-tight tracking-tight">TezaDeMaster</div>
+              <div className="text-[11px] text-ink-500 leading-tight">Generator AI · Ghidul ASEM GD.0.ESTM</div>
+            </div>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="chip-brand hidden sm:inline-flex">research preview</span>
+            <a
+              href="https://github.com/AndreiSecuQA/tezademaster"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-ink-500 hover:text-ink-900 px-2 py-1 rounded hover:bg-ink-100"
+            >
+              GitHub
+            </a>
+          </div>
         </div>
-        {showStepper && <Stepper steps={STEPS} current={step} />}
+        {!isWelcome && <Stepper steps={STEPS} current={step} />}
       </header>
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-6 py-10 animate-fade-in" key={step}>
         <Component />
       </main>
-      <footer className="max-w-5xl mx-auto px-6 py-8 text-xs text-ink-500">
-        <p>
-          Cheile API sunt folosite doar in browserul tau si nu sunt trimise nicaieri in afara providerului ales (OpenAI / Anthropic / Google).
-          Nu salvam datele tale; daca reincarci pagina, vei reincepe procesul.
-        </p>
+      <footer className="max-w-5xl mx-auto px-6 py-10 text-xs text-ink-500 border-t border-ink-200/60 mt-8">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 items-center justify-between">
+          <p>
+            Cheile API se folosesc doar in browserul tau. Aplicatia nu are server propriu.
+          </p>
+          <p className="opacity-70">
+            Open-source · MIT · <a className="underline hover:text-ink-900" href="https://github.com/AndreiSecuQA/tezademaster">github.com/AndreiSecuQA/tezademaster</a>
+          </p>
+        </div>
       </footer>
     </div>
   )

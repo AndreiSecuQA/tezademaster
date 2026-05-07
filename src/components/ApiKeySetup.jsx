@@ -48,21 +48,32 @@ export function ApiKeySetup() {
         </p>
 
         <div className="mt-5 grid sm:grid-cols-3 gap-2">
-          {Object.values(PROVIDERS).map((pr) => (
-            <button
-              key={pr.id}
-              onClick={() => setProvider(pr.id)}
-              className={
-                'rounded-lg border p-3 text-left transition ' +
-                (provider === pr.id
-                  ? 'border-ink-900 ring-2 ring-ink-900/10 bg-ink-50'
-                  : 'border-ink-200 hover:border-ink-400')
-              }
-            >
-              <div className="text-sm font-medium text-ink-900">{pr.label}</div>
-              <div className="text-xs text-ink-500 mt-1">cheia incepe cu <code className="bg-ink-100 px-1 rounded">{pr.keyHint}</code></div>
-            </button>
-          ))}
+          {Object.values(PROVIDERS).map((pr) => {
+            const selected = provider === pr.id
+            return (
+              <button
+                key={pr.id}
+                onClick={() => setProvider(pr.id)}
+                className={
+                  'rounded-xl border p-4 text-left transition group ' +
+                  (selected
+                    ? 'border-brand-500 ring-2 ring-brand-500/15 bg-brand-50/50 shadow-pop'
+                    : 'border-ink-200 hover:border-ink-300 hover:bg-ink-50')
+                }
+              >
+                <div className="flex items-center gap-2">
+                  <div className={
+                    'w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ' +
+                    (selected ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-700')
+                  }>
+                    {pr.label[0]}
+                  </div>
+                  <div className="text-sm font-semibold text-ink-900">{pr.label}</div>
+                </div>
+                <div className="text-xs text-ink-500 mt-2">cheia incepe cu <code className="bg-ink-100 px-1.5 py-0.5 rounded">{pr.keyHint}</code></div>
+              </button>
+            )
+          })}
         </div>
 
         <div className="mt-5 grid sm:grid-cols-2 gap-4">
