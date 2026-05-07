@@ -42,7 +42,7 @@ export function PlanReview() {
         system: systemPrompt(language),
         user: planUserPrompt({ lang: language, info, structureHint, contextSummary }),
         temperature: 0.3,
-        maxTokens: 4000,
+        maxTokens: 8000,
         json: true,
       })
       const parsed = tryParseJson(out)

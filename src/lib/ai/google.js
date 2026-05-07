@@ -12,6 +12,9 @@ export async function callGoogle({ apiKey, model = DEFAULT_MODEL, system, user, 
     generationConfig: {
       temperature,
       maxOutputTokens: maxTokens,
+      // Disable / minimise thinking so the entire output budget goes to actual content.
+      // 2.5 Flash supports 0; 2.5 Pro requires >=128 — we send 0 anyway and the API will clamp.
+      thinkingConfig: { thinkingBudget: 0 },
     },
   }
   if (json) {
