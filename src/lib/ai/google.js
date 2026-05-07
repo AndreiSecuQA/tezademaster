@@ -1,6 +1,6 @@
 // Google Gemini API client (browser-side)
 
-const DEFAULT_MODEL = 'gemini-1.5-pro-latest'
+const DEFAULT_MODEL = 'gemini-2.5-flash'
 
 export async function callGoogle({ apiKey, model = DEFAULT_MODEL, system, user, temperature = 0.4, maxTokens = 4096 }) {
   if (!apiKey) throw new Error('Lipseste cheia API Google.')
