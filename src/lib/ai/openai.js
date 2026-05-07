@@ -3,12 +3,20 @@
 
 const DEFAULT_MODEL = 'gpt-4o'
 
-export async function callOpenAI({ apiKey, model = DEFAULT_MODEL, system, user, temperature = 0.4, maxTokens = 4096 }) {
+export async function callOpenAI({ apiKey, model = DEFAULT_MODEL, system, user, temperature = 0.4, maxTokens = 4096, json = false }) {
   if (!apiKey) throw new Error('Lipseste cheia API OpenAI.')
 
   const messages = []
   if (system) messages.push({ role: 'system', content: system })
   messages.push({ role: 'user', content: user })
+
+  const payload = {
+    model,
+    messages,
+    temperature,
+    max_tokens: maxTokens,
+  }
+  if (json) payload.response_format = { type: 'json_object' }
 
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -16,12 +24,7 @@ export async function callOpenAI({ apiKey, model = DEFAULT_MODEL, system, user, 
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature,
-      max_tokens: maxTokens,
-    }),
+    body: JSON.stringify(payload),
   })
 
   if (!res.ok) {

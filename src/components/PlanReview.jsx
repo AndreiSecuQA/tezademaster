@@ -9,12 +9,20 @@ import { ArrowLeft, ArrowRight, Loader2, RefreshCw, Plus, Minus } from 'lucide-r
 function tryParseJson(text) {
   if (!text) return null
   // Strip code fences if present
-  const cleaned = text.replace(/```json\s*([\s\S]*?)```/g, '$1').replace(/```\s*([\s\S]*?)```/g, '$1').trim()
+  let cleaned = text
+    .replace(/```json\s*([\s\S]*?)```/g, '$1')
+    .replace(/```\s*([\s\S]*?)```/g, '$1')
+    .trim()
   try { return JSON.parse(cleaned) } catch {}
-  // Try to grab the largest {...} block
-  const m = cleaned.match(/\{[\s\S]*\}/)
-  if (m) {
-    try { return JSON.parse(m[0]) } catch {}
+  // Strip leading "Sure! Here is..." prose by finding first { and matching last }
+  const first = cleaned.indexOf('{')
+  const last = cleaned.lastIndexOf('}')
+  if (first !== -1 && last > first) {
+    const slice = cleaned.slice(first, last + 1)
+    try { return JSON.parse(slice) } catch {}
+    // try removing trailing commas before } or ]
+    const noTrail = slice.replace(/,\s*([}\]])/g, '$1')
+    try { return JSON.parse(noTrail) } catch {}
   }
   return null
 }
@@ -23,9 +31,10 @@ export function PlanReview() {
   const { language, provider, model, apiKey, info, structureHint, documents, plan, setPlan, setStep } = useStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rawResponse, setRawResponse] = useState('')
 
   const generate = async () => {
-    setLoading(true); setError('')
+    setLoading(true); setError(''); setRawResponse('')
     try {
       const contextSummary = buildContext(documents, 6000)
       const out = await callAI({
@@ -33,11 +42,13 @@ export function PlanReview() {
         system: systemPrompt(language),
         user: planUserPrompt({ lang: language, info, structureHint, contextSummary }),
         temperature: 0.3,
-        maxTokens: 2000,
+        maxTokens: 4000,
+        json: true,
       })
       const parsed = tryParseJson(out)
       if (!parsed || !Array.isArray(parsed.chapters)) {
-        throw new Error('Raspunsul AI nu a putut fi parsat ca JSON. Reincearca.')
+        setRawResponse(out || '(raspuns gol)')
+        throw new Error('Raspunsul AI nu a putut fi parsat ca JSON. Vezi raspunsul brut mai jos si reincearca.')
       }
       setPlan(parsed)
     } catch (e) {
@@ -54,13 +65,21 @@ export function PlanReview() {
 
   if (loading || !plan) {
     return (
-      <div className="card flex items-center gap-3">
-        <Loader2 size={18} className="animate-spin" />
-        <div>
-          <div className="text-ink-900 font-medium text-sm">Se genereaza planul tezei...</div>
-          <div className="text-ink-500 text-xs">{error || 'Acest pas dureaza ~10-30 secunde.'}</div>
+      <div className="space-y-3">
+        <div className="card flex items-center gap-3">
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+          <div className="flex-1">
+            <div className="text-ink-900 font-medium text-sm">Se genereaza planul tezei...</div>
+            <div className="text-ink-500 text-xs">{error || 'Acest pas dureaza ~10-30 secunde.'}</div>
+          </div>
+          {!loading && <button onClick={generate} className="btn-secondary"><RefreshCw size={14} /> Reincearca</button>}
         </div>
-        {error && <button onClick={generate} className="ml-auto btn-secondary"><RefreshCw size={14} /> Reincearca</button>}
+        {rawResponse && (
+          <details className="card text-xs">
+            <summary className="cursor-pointer text-ink-700 font-medium">Vezi raspunsul brut al AI-ului (debug)</summary>
+            <pre className="mt-2 whitespace-pre-wrap break-words text-ink-600 max-h-80 overflow-auto">{rawResponse}</pre>
+          </details>
+        )}
       </div>
     )
   }

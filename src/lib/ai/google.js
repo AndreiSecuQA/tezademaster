@@ -2,7 +2,7 @@
 
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
-export async function callGoogle({ apiKey, model = DEFAULT_MODEL, system, user, temperature = 0.4, maxTokens = 4096 }) {
+export async function callGoogle({ apiKey, model = DEFAULT_MODEL, system, user, temperature = 0.4, maxTokens = 4096, json = false }) {
   if (!apiKey) throw new Error('Lipseste cheia API Google.')
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`
@@ -13,6 +13,9 @@ export async function callGoogle({ apiKey, model = DEFAULT_MODEL, system, user, 
       temperature,
       maxOutputTokens: maxTokens,
     },
+  }
+  if (json) {
+    body.generationConfig.responseMimeType = 'application/json'
   }
   if (system) {
     body.systemInstruction = { role: 'system', parts: [{ text: system }] }

@@ -35,7 +35,7 @@ export const PROVIDERS = {
   },
 }
 
-export async function callAI({ provider, model, apiKey, system, user, temperature, maxTokens }) {
+export async function callAI({ provider, model, apiKey, system, user, temperature, maxTokens, json }) {
   const p = PROVIDERS[provider]
   if (!p) throw new Error(`Provider necunoscut: ${provider}`)
   return p.call({
@@ -45,5 +45,6 @@ export async function callAI({ provider, model, apiKey, system, user, temperatur
     user,
     temperature,
     maxTokens,
+    json,
   })
 }
